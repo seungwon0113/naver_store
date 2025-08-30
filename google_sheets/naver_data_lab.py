@@ -1,10 +1,14 @@
-import os, gspread, time
+import os
+import gspread
+import time
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 load_dotenv()
 
@@ -13,10 +17,9 @@ gc = gspread.service_account(json_file_path)
 spreadsheet_url = os.environ['GOOGLE_SHEETS_SPREADSHEET_URL']
 doc = gc.open_by_url(spreadsheet_url)
 
-worksheet = doc.worksheet("시트1")
-worksheet.update_acell("A1:A2","자동화 끝!")
+worksheet = doc.worksheet(os.environ['GOOGLE_SHEETS_NAME'])
 
-# TODO: 세팅 완료 후 주석 풀고 드라이버에 옵션 추가
+# 드라이버 옵션
 options = Options()
 options.add_argument("--headless")
 
@@ -24,24 +27,48 @@ service = Service(executable_path=ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=options)
 
 driver.get(os.environ['DATA_URL'])
-time.sleep(5)
+
+records = []
+rank_counter = 1
+
+while True:
+    # 현재 페이지의 랭킹 아이템 20개 수집
+    rank_items = WebDriverWait(driver, 15).until(
+        EC.presence_of_all_elements_located(
+            (By.CSS_SELECTOR, os.environ["LIST_1000"])
+        )
+    )
+
+    for li in rank_items:
+        num_el = li.find_element(By.CSS_SELECTOR, os.environ["LIST_1000_NUM"])
+        rank_num = int(num_el.text.strip())
+
+        keyword_el = li.find_element(By.CSS_SELECTOR, os.environ["KEYWORD"])
+        full_text = keyword_el.text.strip()
+        keyword = full_text.replace(num_el.text.strip(), "").strip()
+        link = keyword_el.get_attribute(os.environ["HREF"])
 
 
-datetime_elements = driver.find_elements(By.CSS_SELECTOR, ".title_cell .datetime")
-period_elements = driver.find_elements(By.CSS_SELECTOR, ".title_cell .period")
+        records.append([rank_num, keyword, link])
 
-date_texts = [dt.text for dt in datetime_elements]
-period_texts = [pd.text for pd in period_elements]
+        if rank_num >= 500:
+            print("Top 500 수집 완료, 종료합니다.")
+            driver.quit()
+            worksheet.update(range_name="A2", values=records)
+            exit()
 
-print("날짜:", date_texts)
-print("기간:", period_texts)
+    print(f"현재까지 수집된 개수: {len(records)}")
 
-# 키워드/링크 가져오기
-rank_list = driver.find_elements(By.CSS_SELECTOR, ".rank_list .list_area")
-records = [[item.text.strip(), item.get_attribute("href")] for item in rank_list]
+    # 다음 버튼 확인
+    try:
+        next_btn = driver.find_element(By.CSS_SELECTOR, "a.btn_page_next")
 
-print(rank_list)
-print(records)
+        if "disabled" in next_btn.get_attribute("class"):
+            break  # 마지막 페이지 → 종료
 
-# 시트에 한 번에 저장 (A2 ~)
-worksheet.update(f"A2:B{len(records)+1}", records)
+        driver.execute_script("arguments[0].click();", next_btn)
+        time.sleep(1)
+
+    except Exception as e:
+        print("error:", e)
+        break

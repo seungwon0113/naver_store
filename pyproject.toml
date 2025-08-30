@@ -10,3 +10,8 @@ dependencies = [
     "selenium>=4.35.0",
     "webdriver-manager>=4.0.2",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff==0.8.2",
+]

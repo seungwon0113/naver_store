@@ -1,0 +1,29 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+# google_sheets
+GOOGLE_SHEETS_JSON_PATH = os.getenv("GOOGLE_SHEETS_JSON_PATH")
+GOOGLE_SHEETS_SPREADSHEET_URL = os.getenv("GOOGLE_SHEETS_SPREADSHEET_URL")
+
+# gemini
+GENAI_API_KEY = os.getenv("GENAI_API_KEY")
+GENAI_API_MODEL = os.getenv("GENAI_API_MODEL")
+
+# naver_data_lab
+NAVER_DATA_SHEETS_NAME = os.getenv("NAVER_DATA_SHEETS_NAME")
+NAVER_LIST_1000 = os.getenv("NAVER_LIST_1000")
+NAVER_LIST_1000_NUM = os.getenv("NAVER_LIST_1000_NUM")
+NAVER_KEYWORD = os.getenv("NAVER_KEYWORD")
+NAVER_HREF = os.getenv("NAVER_HREF")
+NAVER_DATA_LAB_URL = os.getenv("NAVER_DATA_LAB_URL")
+
+# temu_data_tag
+TEMU_DATA_SHEETS_NAME = os.getenv("TEMU_DATA_SHEETS_NAME")
+TEMU_TITLE_TAG = os.getenv("TEMU_TITLE_TAG")
+TEMU_PRICE_TAG = os.getenv("TEMU_PRICE_TAG")
+TEMU_IMAGE_TAG = os.getenv("TEMU_IMAGE_TAG")
+TEMU_HREF = os.getenv("TEMU_HREF")
+TEMU_BEST_SELLER_URL = os.getenv("TEMU_BEST_SELLER_URL")

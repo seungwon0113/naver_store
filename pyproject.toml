@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "google-genai>=1.32.0",
     "gspread>=6.2.1",
     "python-dotenv>=1.1.1",
     "selenium>=4.35.0",

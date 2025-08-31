@@ -1,2 +1,2 @@
-# bin/bash/
-uv run python gemini/ai.py
+# !/bin/bash
+uv run python -m gemini.ai

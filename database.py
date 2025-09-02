@@ -12,7 +12,7 @@ class Databases():
         )
         self.cursor = self.db.cursor()
 
-    def __del__(self):
+    def close(self):
         self.cursor.close()
         self.db.close()
 

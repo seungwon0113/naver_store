@@ -30,7 +30,7 @@ MANIFEST
 
 # env
 .venv/
-.env/
+envs/.env/
 .ruff_cache/
 
 # pyenv
@@ -42,7 +42,7 @@ MANIFEST
 dmypy.json
 
 # Environments
-.env
+envs/.env
 .venv
 env/
 venv/

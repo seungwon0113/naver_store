@@ -1,15 +1,14 @@
-from google import genai
-from envs import environments as env
+from gemini.rag import build_index, rag_answer
 
 def ai():
-    client = genai.Client(api_key=env.GENAI_API_KEY)
-    message = input("질문을 입력해 주세요: ")
-    response = client.models.generate_content(
-        model=env.GENAI_API_MODEL,
-        contents=message,
-    )
+    embedder, store = build_index()
 
-    print(response.text)
+    while True:
+        message = input("질문을 입력해 주세요 (종료하려면 exit): ")
+        if message.lower() == "exit":
+            break
+        answer = rag_answer(message, embedder, store)
+        print(answer)
 
 if __name__ == "__main__":
     ai()

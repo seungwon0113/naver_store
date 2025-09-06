@@ -38,6 +38,13 @@ def get_rank_from_db(rank: int, category: str):
     return rows
 
 def rag_answer(query, embedder, store):
+    '''
+    TODO: 불필요한 대답 수정필요
+    질문을 입력해 주세요 (종료하려면 exit): 너이름이 뭐야?
+    [패션의류] 제공해주신 데이터는 '카디건', '원더브라' 등 패션의류 관련 검색어 목록입니다.
+
+    이 데이터 목록에는 제 이름이 포함되어 있지 않습니다. 저는 OpenAI에서 개발한 대규모 언어 모델입니다.
+    '''
     # 카테고리 분류
     if "패션" in query or "의류" in query:
         category = "패션의류"

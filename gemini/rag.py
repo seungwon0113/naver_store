@@ -1,12 +1,19 @@
+import re
 from google import genai
 from envs import environments as env
 from database import Databases
 from gemini.embedding import Embedding
 from gemini.vectorstore import VectorStore
 
-def build_index():
+def build_index(category: str):
     db = Databases()
-    rows = db.execute("SELECT id, rank, keyword, link FROM naver_fashion;")
+    if category == "패션의류":
+        rows = db.execute("SELECT id, rank, keyword, link FROM naver_fashion;")
+    elif category == "생활/건강":
+        rows = db.execute("SELECT id, rank, keyword, link FROM naver_health;")
+    else:
+        raise ValueError(f"알 수 없는 카테고리: {category}")
+
     db.close()
 
     texts = [f"{r[1]} | {r[2]} | {r[3]}" for r in rows]  # keyword | url | created_at
@@ -19,15 +26,45 @@ def build_index():
 
     return embedder, store
 
-def rag_answer(query, embedder, store):
-    client = genai.Client(api_key=env.GENAI_API_KEY)
+def get_rank_from_db(rank: int, category: str):
+    db = Databases()
+    if category == "패션의류":
+        rows = db.execute("SELECT rank, keyword, link FROM naver_fashion WHERE rank = %s;", (rank,))
+    elif category == "생활/건강":
+        rows = db.execute("SELECT rank, keyword, link FROM naver_health WHERE rank = %s;", (rank,))
+    else:
+        rows = []
+    db.close()
+    return rows
 
+def rag_answer(query, embedder, store):
+    # 카테고리 분류
+    if "패션" in query or "의류" in query:
+        category = "패션의류"
+    elif "생활" in query or "건강" in query:
+        category = "생활/건강"
+    else:
+        category = "패션의류"  # 기본값
+
+    # "n위는 뭔데?" 처리
+    if re.search(r"\d+위", query):
+        numbers = re.findall(r"\d+", query)
+        if numbers:
+            rank = int(numbers[0])
+            row = get_rank_from_db(rank, category)
+            if row:
+                return f"{category} {rank}위는 {row[0][1]} 입니다. (링크: {row[0][2]})"
+            else:
+                return f"{category} {rank}위 데이터는 존재하지 않습니다."
+
+    # 일반 RAG 검색
+    client = genai.Client(api_key=env.GENAI_API_KEY)
     query_vec = embedder.encode([query])
     results = store.search(query_vec, top_k=5)
 
     context = "\n".join(results)
     prompt = f"""
-다음은 naver_fashion 데이터에서 검색된 정보입니다:
+다음은 {category} 데이터에서 검색된 정보입니다:
 
 {context}
 

@@ -1,14 +1,18 @@
-import gspread
 import time
+
+import gspread
+from gspread.worksheet import Worksheet
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
-from envs import environments as env
+from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
+
 from database import Databases
+from envs import environments as env
 
 db = Databases()
 
@@ -33,7 +37,14 @@ CATEGORIES = {
     "생활/건강": "50000008",
 }
 
-def scrape_category(driver, worksheet, category_name, data_cid, start_cell):
+
+def scrape_category(
+    driver: WebDriver,
+    worksheet: Worksheet,
+    category_name: str,
+    data_cid: str,
+    start_cell: str,
+) -> None:
     print(f"[{category_name}] 스크래핑 시작")
 
     # 1) 분야 드롭다운 열기
@@ -98,7 +109,8 @@ def scrape_category(driver, worksheet, category_name, data_cid, start_cell):
 
         try:
             next_btn = driver.find_element(By.CSS_SELECTOR, "a.btn_page_next")
-            if "disabled" in next_btn.get_attribute("class"):
+            class_attr = next_btn.get_attribute("class")
+            if class_attr is not None and "disabled" in class_attr:
                 break
             driver.execute_script("arguments[0].click();", next_btn)
             time.sleep(1)
@@ -106,6 +118,7 @@ def scrape_category(driver, worksheet, category_name, data_cid, start_cell):
             break
 
     worksheet.update(range_name=start_cell, values=records)
+
 
 # 패션의류 → A3부터 저장
 scrape_category(driver, worksheet, "패션의류", CATEGORIES["패션의류"], "A3")

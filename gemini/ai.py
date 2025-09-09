@@ -1,7 +1,9 @@
 from google import genai
+
 from envs import environments as env
 
-def ai():
+
+def ai() -> None:
     client = genai.Client(api_key=env.GENAI_API_KEY)
     message = input("질문을 입력해 주세요: ")
     response = client.models.generate_content(
@@ -10,6 +12,7 @@ def ai():
     )
 
     print(response.text)
+
 
 if __name__ == "__main__":
     ai()

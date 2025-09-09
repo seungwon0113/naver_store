@@ -6,3 +6,15 @@
   - 상품 게시글 작성 자동화(추후 개발 진행 예정)
   
 <img src="image/naver_store.png">
+
+## Scripts Commands
+```
+[code formatting script]
+>>> ./scripts/test.sh
+
+[scraping script]
+>>> ./scripts/scraping.sh
+
+[AI script]
+>>> ./scripts/ai.sh
+```

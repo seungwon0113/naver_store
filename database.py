@@ -1,4 +1,5 @@
-from typing import Any, List, Optional, Tuple, Union
+import types
+from typing import Any, List, Optional, Tuple, Type, Union
 
 import psycopg2
 
@@ -15,6 +16,17 @@ class Databases:
             port=5432,
         )
         self.cursor = self.db.cursor()
+
+    def __enter__(self) -> "Databases":
+        return self
+
+    def __exit__(
+            self,
+            exc_type: Optional[Type[BaseException]],
+            exc_val: Optional[BaseException],
+            exc_tb: Optional[types.TracebackType],
+    ) -> None:
+        self.close()
 
     def close(self) -> None:
         self.cursor.close()

@@ -88,19 +88,20 @@ def scrape_category(
 
             records.append([rank_num, keyword, link])
 
-            # TODO: 중복 업데이트 처리 필요 (수정예정)
-            if category_name == "패션의류":
-                db.execute(
-                    "INSERT INTO naver_fashion (rank, keyword, link) VALUES (%s, %s, %s) ON CONFLICT (keyword) DO UPDATE SET rank = EXCLUDED.rank, link = EXCLUDED.link",
-                    (rank_num, keyword, link),
-                    fetch=False,
-                )
-            elif category_name == "생활/건강":
-                db.execute(
-                    "INSERT INTO naver_health (rank, keyword, link) VALUES (%s, %s, %s) ON CONFLICT (keyword) DO UPDATE SET rank = EXCLUDED.rank, link = EXCLUDED.link",
-                    (rank_num, keyword, link),
-                    fetch=False,
-                )
+            with Databases() as db:
+                # TODO: 중복 업데이트 처리 필요 (수정예정)
+                if category_name == "패션의류":
+                    db.execute(
+                        "INSERT INTO naver_fashion (rank, keyword, link) VALUES (%s, %s, %s) ON CONFLICT (keyword) DO UPDATE SET rank = EXCLUDED.rank, link = EXCLUDED.link",
+                        (rank_num, keyword, link),
+                        fetch=False,
+                    )
+                elif category_name == "생활/건강":
+                    db.execute(
+                        "INSERT INTO naver_health (rank, keyword, link) VALUES (%s, %s, %s) ON CONFLICT (keyword) DO UPDATE SET rank = EXCLUDED.rank, link = EXCLUDED.link",
+                        (rank_num, keyword, link),
+                        fetch=False,
+                    )
 
             if rank_num >= 500:
                 print(f"[{category_name}] Top 500 완료")
@@ -125,5 +126,4 @@ scrape_category(driver, worksheet, "패션의류", CATEGORIES["패션의류"], "
 
 # 생활/건강 → D3부터 저장
 scrape_category(driver, worksheet, "생활/건강", CATEGORIES["생활/건강"], "D3")
-db.close()
 driver.quit()

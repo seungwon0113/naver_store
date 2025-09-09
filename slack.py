@@ -15,8 +15,9 @@ def send_slack_message(text: str) -> None:
 
 
 if __name__ == "__main__":
-    # DB에서 키워드 가져오기 (최대 10개)
-    rows = db.execute("SELECT keyword FROM naver_fashion LIMIT 10")
+    with Databases() as db:
+        # DB에서 키워드 가져오기 (최대 10개)
+        rows = db.execute("SELECT keyword FROM naver_fashion LIMIT 10")
 
     # 튜플에서 값만 꺼내기
     if rows is None:

@@ -50,5 +50,8 @@ ENV/
 env.bak/
 venv.bak/
 
-# uv
-uv.lock
+# coverage
+.coverage
+
+# htmlcov
+htmlcov
